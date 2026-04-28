@@ -1,2 +1,1 @@
 export { ArticleParamsForm } from './ArticleParamsForm';
-
