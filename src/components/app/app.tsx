@@ -1,5 +1,4 @@
 import { CSSProperties, useState } from 'react';
-import clsx from 'clsx';
 
 import { Article } from '../article/Article';
 import { ArticleParamsForm } from '../article-params-form/ArticleParamsForm';
@@ -11,22 +10,22 @@ import {
 import styles from './app.module.scss';
 
 export const App = () => {
-	const [cssArticle, setCssArticle] =
+	const [articleVisuals, setArticleVisuals] =
 		useState<ArticleStateType>(defaultArticleState);
 
 	return (
 		<main
-			className={clsx(styles.main)}
+			className={styles.main}
 			style={
 				{
-					'--font-family': cssArticle.fontFamilyOption.value,
-					'--font-size': cssArticle.fontSizeOption.value,
-					'--font-color': cssArticle.fontColor.value,
-					'--container-width': cssArticle.contentWidth.value,
-					'--bg-color': cssArticle.backgroundColor.value,
+					'--font-family': articleVisuals.fontFamilyOption.value,
+					'--font-size': articleVisuals.fontSizeOption.value,
+					'--font-color': articleVisuals.fontColor.value,
+					'--container-width': articleVisuals.contentWidth.value,
+					'--bg-color': articleVisuals.backgroundColor.value,
 				} as CSSProperties
 			}>
-			<ArticleParamsForm setData={setCssArticle} />
+			<ArticleParamsForm setData={setArticleVisuals} />
 			<Article />
 		</main>
 	);

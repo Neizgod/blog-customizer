@@ -178,6 +178,3 @@ export const defaultArticleState = {
 
 export type ArticleStateType = typeof defaultArticleState;
 
-export interface ArticleParamsFormProps {
-	setData: React.Dispatch<React.SetStateAction<ArticleStateType>>;
-}

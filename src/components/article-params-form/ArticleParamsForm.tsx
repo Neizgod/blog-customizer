@@ -2,7 +2,7 @@ import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
 
 import styles from './ArticleParamsForm.module.scss';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { RadioGroup } from 'src/ui/radio-group';
 import { Select } from 'src/ui/select';
@@ -12,37 +12,74 @@ import {
 	fontColors,
 	backgroundColors,
 	contentWidthArr,
-	ArticleParamsFormProps,
 	ArticleStateType,
 	defaultArticleState,
 	OptionType,
 } from 'src/constants/articleProps';
 import { Separator } from 'src/ui/separator';
 
+interface ArticleParamsFormProps {
+	setData: React.Dispatch<React.SetStateAction<ArticleStateType>>;
+}
+
 export const ArticleParamsForm = (props: ArticleParamsFormProps) => {
 	const { setData } = props;
 	const [formData, setFormData] =
 		useState<ArticleStateType>(defaultArticleState);
-	const [formState, setFormState] = useState<boolean>(false);
+	const [isFormOpen, setFormState] = useState<boolean>(false);
+	const aside = useRef<HTMLElement>(null);
 
 	const handleChange =
 		(field: keyof ArticleStateType) => (option: OptionType) => {
 			setFormData((prev) => ({ ...prev, [field]: option }));
 		};
 
+	useEffect(() => {
+		if (!isFormOpen) {
+			return;
+		}
+
+		const handleClick = (event: MouseEvent) => {
+			if (aside.current && !aside.current.contains(event.target as Node))
+				setFormState(false);
+		};
+
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') setFormState(false);
+		};
+
+		window.addEventListener('mousedown', handleClick);
+		window.addEventListener('keydown', handleKeyDown);
+
+		return () => {
+			window.removeEventListener('mousedown', handleClick);
+			window.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [isFormOpen]);
+
 	return (
 		<>
 			<ArrowButton
-				isOpen={formState}
+				isOpen={isFormOpen}
 				onClick={() => {
 					setFormState((formState) => !formState);
 				}}
 			/>
 			<aside
 				className={clsx(styles.container, {
-					[styles.container_open]: formState,
-				})}>
-				<form className={styles.form}>
+					[styles.container_open]: isFormOpen,
+				})}
+				ref={aside}>
+				<form
+					className={styles.form}
+					onSubmit={(e) => {
+						e.preventDefault();
+						setData(formData);
+					}}
+					onReset={() => {
+						setFormData(defaultArticleState);
+						setData(defaultArticleState);
+					}}>
 					<Select
 						title='Шрифт'
 						options={fontFamilyOptions}
@@ -76,23 +113,8 @@ export const ArticleParamsForm = (props: ArticleParamsFormProps) => {
 						onChange={handleChange('contentWidth')}
 					/>
 					<div className={styles.bottomContainer}>
-						<Button
-							title='Сбросить'
-							htmlType='reset'
-							type='clear'
-							onClick={() => {
-								setFormData(defaultArticleState)
-								setData(defaultArticleState);
-							}}
-						/>
-						<Button
-							title='Применить'
-							htmlType='button'
-							type='apply'
-							onClick={() => {
-								setData(formData);
-							}}
-						/>
+						<Button title='Сбросить' htmlType='reset' type='clear' />
+						<Button title='Применить' htmlType='submit' type='apply' />
 					</div>
 				</form>
 			</aside>
